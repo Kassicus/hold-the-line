@@ -27,7 +27,7 @@ class Bullet(pygame.sprite.Sprite):
         self.target_pos = pygame.math.Vector2(tx, ty)
         self.velocity = pygame.math.Vector2()
         self.speed = 750
-        self.damage = 2
+        self.damage = 1
         self.lifetime = 8000
 
         self.image = pygame.Surface([3, 3])
@@ -250,7 +250,7 @@ class Musketman(pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(x, y)
 
         self.side = side
-        self.health = 2
+        self.health = 3
 
         self.target = None
         self.accuracy = random.randint(60, 120)
@@ -271,7 +271,7 @@ class Musketman(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
 
-    def update(self):
+    def update(self, bug_fix: pygame.sprite.Group):
         if self.target == None:
             if self.side == "friend":
                 enemies = game.enemies
@@ -364,6 +364,10 @@ class Game():
         self.enemies = pygame.sprite.Group()
         self.enemies_projectiles = pygame.sprite.Group()
 
+        self.font = pygame.font.SysFont("Courier", 16)
+        self.fps = self.font.render(str(int(self.clock.get_fps())), True, (0, 255, 0))
+        self.fight_text = self.font.render("False", True, (255, 255, 255))
+
     def spawn_wave(self, count: int):
         for x in range(count):
             x = Zombie()
@@ -391,8 +395,10 @@ class Game():
     def toggle_fight(self):
         if self.fight:
             self.fight = False
+            self.fight_text = self.font.render("False", True, (255, 255, 255))
         else:
             self.fight = True
+            self.fight_text = self.font.render("True", True, (255, 255, 255))
 
     def start(self):
         while self.running:
@@ -457,16 +463,21 @@ class Game():
         self.enemies.draw(self.screen)
         self.enemies_projectiles.draw(self.screen)
 
+        self.screen.blit(self.fps, (10, 10))
+        self.screen.blit(self.fight_text, (1200 / 2 - self.fight_text.get_width() / 2, 10))
+
     def update(self):
         global delta_time
+
+        self.fps = self.font.render(str(int(self.clock.get_fps())), True, (0, 255, 0))
 
         if self.fight:
             self.collide_projectiles()
 
-            self.friends.update()
+            self.friends.update(self.zombies)
             self.friends_projectiles.update()
             self.zombies.update()
-            self.enemies.update()
+            self.enemies.update(self.zombies)
             self.enemies_projectiles.update()
 
         pygame.display.update()
