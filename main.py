@@ -6,6 +6,18 @@ pygame.init()
 
 delta_time = 0
 
+sounds = {
+    "gun 1": pygame.mixer.Sound("assets/sounds/gunshot_1.wav"),
+    "gun 2": pygame.mixer.Sound("assets/sounds/gunshot_2.wav"),
+    "gun 3": pygame.mixer.Sound("assets/sounds/rifle_1.wav"),
+    "gun 4": pygame.mixer.Sound("assets/sounds/rifle_2.wav")
+}
+
+def playSound(sound):
+    pygame.mixer.Sound.set_volume(sounds[sound], 0.5)
+    pygame.mixer.Sound.play(sounds[sound])
+    pygame.mixer.Sound.fadeout(sounds[sound], 750)
+
 class Bullet(pygame.sprite.Sprite):
     def __init__(self, sx: int, sy: int, tx: int, ty: int):
         super().__init__()
@@ -51,7 +63,7 @@ class MachineGunner(pygame.sprite.Sprite):
         self.pos = pygame.math.Vector2(x, y)
 
         self.target = None
-        self.accuracy = 250
+        self.accuracy = 80
         self.shot_max_cooldown = 5
         self.shot_cooldown = random.randint(0, self.shot_max_cooldown)
 
@@ -99,6 +111,8 @@ class MachineGunner(pygame.sprite.Sprite):
         
         game.friends_projectiles.add(b)
 
+        playSound(random.choice(("gun 1", "gun 2")))
+
         self.rounds_remaining -= 1
 
         if self.rounds_remaining <= 0:
@@ -145,7 +159,7 @@ class AutoRifleman(pygame.sprite.Sprite):
             if self.target.alive():
                 if self.shot_cooldown < 0:
                     self.shoot()
-                    self.shot_cooldown = self.shot_max_cooldown
+                    self.shot_cooldown = random.randint(10, self.shot_max_cooldown)
             else:
                 self.target = None
 
@@ -158,6 +172,8 @@ class AutoRifleman(pygame.sprite.Sprite):
             )
         
         game.friends_projectiles.add(b)
+
+        playSound(random.choice(("gun 3", "gun 4")))
 
         self.rounds_remaining -= 1
 
@@ -175,10 +191,10 @@ class Rifleman(pygame.sprite.Sprite):
         self.shot_max_cooldown = 100
         self.shot_cooldown = random.randint(0, self.shot_max_cooldown)
 
-        self.magazine_capacity = 5
+        self.magazine_capacity = 10
         self.rounds_remaining = self.magazine_capacity
         self.reloading = False
-        self.reload_max_timer = 500
+        self.reload_max_timer = 350
         self.reload_timer = self.reload_max_timer
 
         self.image = pygame.Surface([20, 30])
@@ -205,7 +221,7 @@ class Rifleman(pygame.sprite.Sprite):
             if self.target.alive():
                 if self.shot_cooldown < 0:
                     self.shoot()
-                    self.shot_cooldown = self.shot_max_cooldown
+                    self.shot_cooldown = random.randint(15, self.shot_max_cooldown)
             else:
                 self.target = None
 
@@ -219,6 +235,8 @@ class Rifleman(pygame.sprite.Sprite):
         
         game.friends_projectiles.add(b)
 
+        playSound(random.choice(("gun 3", "gun 4")))
+
         self.rounds_remaining -= 1
 
         if self.rounds_remaining <= 0:
@@ -228,11 +246,11 @@ class Zombie(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
 
-        self.pos = pygame.math.Vector2(random.randint(600, 1200), random.randint(0, 900))
+        self.pos = pygame.math.Vector2(random.randint(1200, 1500), random.randint(0, 900))
         self.velocity = pygame.math.Vector2()
         self.speed = random.randint(30, 80)
 
-        self.health = 10
+        self.health = 4
 
         self.image = pygame.Surface([20, 30])
         self.image.fill((255, 0, 0))
@@ -240,7 +258,7 @@ class Zombie(pygame.sprite.Sprite):
         self.rect.center = self.pos
 
     def update(self):
-        #self.velocity.x = -self.speed
+        self.velocity.x = -self.speed
         self.pos += self.velocity * delta_time
         self.rect.center = self.pos
 
