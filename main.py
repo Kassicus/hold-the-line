@@ -254,10 +254,10 @@ class Musketman(pygame.sprite.Sprite):
 
         self.target = None
         self.accuracy = random.randint(60, 120)
-        self.shot_max_cooldown = 100
+        self.shot_max_cooldown = 50
         self.shot_cooldown = random.randint(0, self.shot_max_cooldown)
 
-        self.magazine_capacity = 1
+        self.magazine_capacity = 2
         self.rounds_remaining = self.magazine_capacity
         self.reloading = False
         self.reload_max_timer = 350
