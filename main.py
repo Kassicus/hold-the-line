@@ -57,211 +57,34 @@ class Bullet(pygame.sprite.Sprite):
     def destroy(self):
         self.kill()
 
-class MachineGunner(pygame.sprite.Sprite):
-    def __init__(self, x: int, y: int):
+class BaseUnit(pygame.sprite.Sprite):
+    def __init__(
+            self,
+            x: int,
+            y: int,
+            health: int,
+            accuracy: int,
+            max_cooldown: int,
+            mag_capacity: int,
+            max_reload: int,
+            side: str
+    ):
         super().__init__()
 
         self.pos = pygame.math.Vector2(x, y)
-
-        self.target = None
-        self.accuracy = 80
-        self.shot_max_cooldown = 5
-        self.shot_cooldown = random.randint(0, self.shot_max_cooldown)
-
-        self.magazine_capacity = 250
-        self.rounds_remaining = self.magazine_capacity
-        self.reloading = False
-        self.reload_max_timer = 800
-        self.reload_timer = self.reload_max_timer
-
-        self.image = pygame.Surface([20, 30])
-        self.image.fill((0, 255, 0))
-        self.rect = self.image.get_rect()
-        self.rect.center = self.pos
-
-    def update(self, enemies: pygame.sprite.Group):
-        if self.target == None:
-            if len(enemies.sprites()) > 0:
-                # closest
-                self.target = min([z for z in enemies], key=lambda e: self.pos.distance_to(e.pos))    
-
-        if self.target is not None:
-            if self.reloading == False:
-                self.shot_cooldown -= 1
-            else:
-                self.reload_timer -= 1
-                if self.reload_timer <= 0:
-                    self.reloading = False
-                    self.reload_timer = self.reload_max_timer
-                    self.rounds_remaining = self.magazine_capacity
-
-            if self.target.alive():
-                if self.shot_cooldown < 0:
-                    self.shoot()
-                    self.shot_cooldown = self.shot_max_cooldown
-            else:
-                self.target = None
-
-    def shoot(self):
-        b = Bullet(
-            self.pos.x,
-            self.pos.y,
-            random.randint(int(self.target.pos.x) - self.accuracy, int(self.target.pos.x) + self.accuracy),
-            random.randint(int(self.target.pos.y) - self.accuracy, int(self.target.pos.y) + self.accuracy)
-            )
-        
-        game.friends_projectiles.add(b)
-
-        playSound(random.choice(("gun 1", "gun 2")))
-
-        self.rounds_remaining -= 1
-
-        if self.rounds_remaining <= 0:
-            self.reloading = True
-
-class AutoRifleman(pygame.sprite.Sprite):
-    def __init__(self, x: int, y: int):
-        super().__init__()
-
-        self.pos = pygame.math.Vector2(x, y)
-
-        self.target = None
-        self.accuracy = 50
-        self.shot_max_cooldown = 30
-        self.shot_cooldown = random.randint(0, self.shot_max_cooldown)
-
-        self.magazine_capacity = 30
-        self.rounds_remaining = self.magazine_capacity
-        self.reloading = False
-        self.reload_max_timer = 500
-        self.reload_timer = self.reload_max_timer
-
-        self.image = pygame.Surface([20, 30])
-        self.image.fill((0, 255, 255))
-        self.rect = self.image.get_rect()
-        self.rect.center = self.pos
-
-    def update(self, enemies: pygame.sprite.Group):
-        if self.target == None:
-            if len(enemies.sprites()) > 0:
-                # closest
-                self.target = min([z for z in enemies], key=lambda e: self.pos.distance_to(e.pos))    
-
-        if self.target is not None:
-            if self.reloading == False:
-                self.shot_cooldown -= 1
-            else:
-                self.reload_timer -= 1
-                if self.reload_timer <= 0:
-                    self.reloading = False
-                    self.reload_timer = self.reload_max_timer
-                    self.rounds_remaining = self.magazine_capacity
-
-            if self.target.alive():
-                if self.shot_cooldown < 0:
-                    self.shoot()
-                    self.shot_cooldown = random.randint(10, self.shot_max_cooldown)
-            else:
-                self.target = None
-
-    def shoot(self):
-        b = Bullet(
-            self.pos.x,
-            self.pos.y,
-            random.randint(int(self.target.pos.x) - self.accuracy, int(self.target.pos.x) + self.accuracy),
-            random.randint(int(self.target.pos.y) - self.accuracy, int(self.target.pos.y) + self.accuracy)
-            )
-        
-        game.friends_projectiles.add(b)
-
-        playSound(random.choice(("gun 1", "gun 2")))
-
-        self.rounds_remaining -= 1
-
-        if self.rounds_remaining <= 0:
-            self.reloading = True
-
-class Rifleman(pygame.sprite.Sprite):
-    def __init__(self, x: int, y: int):
-        super().__init__()
-
-        self.pos = pygame.math.Vector2(x, y)
-
-        self.target = None
-        self.accuracy = 20
-        self.shot_max_cooldown = 100
-        self.shot_cooldown = random.randint(0, self.shot_max_cooldown)
-
-        self.magazine_capacity = 10
-        self.rounds_remaining = self.magazine_capacity
-        self.reloading = False
-        self.reload_max_timer = 350
-        self.reload_timer = self.reload_max_timer
-
-        self.image = pygame.Surface([20, 30])
-        self.image.fill((0, 0, 255))
-        self.rect = self.image.get_rect()
-        self.rect.center = self.pos
-
-    def update(self, enemies: pygame.sprite.Group):
-        if self.target == None:
-            if len(enemies.sprites()) > 0:
-                # closest
-                self.target = min([z for z in enemies], key=lambda e: self.pos.distance_to(e.pos))    
-
-        if self.target is not None:
-            if self.reloading == False:
-                self.shot_cooldown -= 1
-            else:
-                self.reload_timer -= 1
-                if self.reload_timer <= 0:
-                    self.reloading = False
-                    self.reload_timer = self.reload_max_timer
-                    self.rounds_remaining = self.magazine_capacity
-
-            if self.target.alive():
-                if self.shot_cooldown < 0:
-                    self.shoot()
-                    self.shot_cooldown = random.randint(15, self.shot_max_cooldown)
-            else:
-                self.target = None
-
-    def shoot(self):
-        b = Bullet(
-            self.pos.x,
-            self.pos.y,
-            random.randint(int(self.target.pos.x) - self.accuracy, int(self.target.pos.x) + self.accuracy),
-            random.randint(int(self.target.pos.y) - self.accuracy, int(self.target.pos.y) + self.accuracy)
-            )
-        
-        game.friends_projectiles.add(b)
-
-        playSound(random.choice(("gun 3", "gun 4")))
-
-        self.rounds_remaining -= 1
-
-        if self.rounds_remaining <= 0:
-            self.reloading = True
-
-class Musketman(pygame.sprite.Sprite):
-    def __init__(self, x: int, y: int, side: str):
-        super().__init__()
-
-        self.pos = pygame.math.Vector2(x, y)
-
+        self.health = health
         self.side = side
-        self.health = 3
 
         self.target = None
-        self.accuracy = random.randint(60, 120)
-        self.shot_max_cooldown = 50
+        self.accuracy = accuracy
+        self.shot_max_cooldown = max_cooldown
         self.shot_cooldown = random.randint(0, self.shot_max_cooldown)
 
-        self.magazine_capacity = 2
+        self.magazine_capacity = mag_capacity
         self.rounds_remaining = self.magazine_capacity
         self.reloading = False
-        self.reload_max_timer = 350
-        self.reload_timer = self.reload_max_timer
+        self.reload_max_timer = max_reload
+        self.relaod_timer = self.reload_max_timer
 
         self.image = pygame.Surface([20, 30])
         if self.side == "friend":
@@ -271,7 +94,7 @@ class Musketman(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.center = self.pos
 
-    def update(self, bug_fix: pygame.sprite.Group):
+    def update(self):
         if self.target == None:
             if self.side == "friend":
                 enemies = game.enemies
@@ -279,23 +102,22 @@ class Musketman(pygame.sprite.Sprite):
                 enemies = game.friends
 
             if len(enemies.sprites()) > 0:
-                # closest
-                self.target = min([z for z in enemies], key=lambda e: self.pos.distance_to(e.pos))    
+                self.target = min([e for e in enemies], key = lambda e: self.pos.distance_to(e.pos))
 
         if self.target is not None:
             if self.reloading == False:
                 self.shot_cooldown -= 1
             else:
-                self.reload_timer -= 1
-                if self.reload_timer <= 0:
+                self.relaod_timer -= 1
+                if self.relaod_timer <= 0:
                     self.reloading = False
-                    self.reload_timer = self.reload_max_timer
+                    self.relaod_timer = self.reload_max_timer
                     self.rounds_remaining = self.magazine_capacity
 
             if self.target.alive():
                 if self.shot_cooldown < 0:
                     self.shoot()
-                    self.shot_cooldown = random.randint(0, self.shot_max_cooldown)
+                    self.shot_cooldown = self.shot_max_cooldown
             else:
                 self.target = None
 
@@ -321,6 +143,22 @@ class Musketman(pygame.sprite.Sprite):
 
         if self.rounds_remaining <= 0:
             self.reloading = True
+
+class MachineGunner(BaseUnit):
+    def __init__(self, x: int, y: int, side: str):
+        super().__init__(x, y, 10, 80, 5, 250, 800, side)
+
+class AutoRifleman(BaseUnit):
+    def __init__(self, x: int, y: int, side: str):
+        super().__init__(x, y, 10, 50, 30, 30, 500, side)
+
+class Rifleman(BaseUnit):
+    def __init__(self, x: int, y: int, side: str):
+        super().__init__(x, y, 10, 20, 100, 10, 350, side)
+
+class Musketman(BaseUnit):
+    def __init__(self, x: int, y: int, side: str):
+        super().__init__(x, y, 3, random.randint(60, 120), 50, 2, 250, side)
 
 class Zombie(pygame.sprite.Sprite):
     def __init__(self):
@@ -357,6 +195,7 @@ class Game():
         self.frame_limit = 120
 
         self.fight = False
+        self.side = "friend"
 
         self.friends = pygame.sprite.Group()
         self.friends_projectiles = pygame.sprite.Group()
@@ -367,11 +206,12 @@ class Game():
         self.font = pygame.font.SysFont("Courier", 16)
         self.fps = self.font.render(str(int(self.clock.get_fps())), True, (0, 255, 0))
         self.fight_text = self.font.render("False", True, (255, 255, 255))
+        self.side_text = self.font.render(self.side, True, (255, 255, 255))
 
     def spawn_wave(self, count: int):
         for x in range(count):
             x = Zombie()
-            self.zombies.add(x)
+            self.enemies.add(x)
 
     def collide_projectiles(self):
         for z in self.zombies:
@@ -400,6 +240,14 @@ class Game():
             self.fight = True
             self.fight_text = self.font.render("True", True, (255, 255, 255))
 
+    def toggle_side(self):
+        if self.side == "friend":
+            self.side = "enemy"
+        else:
+            self.side = "friend"
+
+        self.side_text = self.font.render(self.side, True, (255, 255, 255))
+
     def start(self):
         while self.running:
             self.event_loop()
@@ -416,28 +264,35 @@ class Game():
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_r:
                     x, y = pygame.mouse.get_pos()
-                    r = Rifleman(x, y)
-                    self.friends.add(r)
+                    r = Rifleman(x, y, self.side)
+                    if self.side == "friend":
+                        self.friends.add(r)
+                    else:
+                        self.enemies.add(r)
 
                 if event.key == pygame.K_m:
                     x, y = pygame.mouse.get_pos()
-                    m = MachineGunner(x, y)
-                    self.friends.add(m)
+                    m = MachineGunner(x, y, self.side)
+                    if self.side == "friend":
+                        self.friends.add(m)
+                    else:
+                        self.enemies.add(m)
 
                 if event.key == pygame.K_a:
                     x, y = pygame.mouse.get_pos()
-                    a = AutoRifleman(x, y)
-                    self.friends.add(a)
+                    a = AutoRifleman(x, y, self.side)
+                    if self.side == "friend":
+                        self.friends.add(a)
+                    else:
+                        self.enemies.add(a)
 
                 if event.key == pygame.K_g:
                     x, y = pygame.mouse.get_pos()
-                    g = Musketman(x, y, "friend")
-                    self.friends.add(g)
-
-                if event.key == pygame.K_b:
-                    x, y = pygame.mouse.get_pos()
-                    b = Musketman(x, y, "enemy")
-                    self.enemies.add(b)
+                    g = Musketman(x, y, self.side)
+                    if self.side == "friend":
+                        self.friends.add(g)
+                    else:
+                        self.enemies.add(g)
 
                 if event.key == pygame.K_c:
                     for f in self.friends:
@@ -447,6 +302,9 @@ class Game():
 
                 if event.key == pygame.K_SPACE:
                     self.toggle_fight()
+
+                if event.key == pygame.K_t:
+                    self.toggle_side()
 
                 if event.key == pygame.K_1:
                     self.spawn_wave(10)
@@ -459,12 +317,12 @@ class Game():
 
         self.friends.draw(self.screen)
         self.friends_projectiles.draw(self.screen)
-        self.zombies.draw(self.screen)
         self.enemies.draw(self.screen)
         self.enemies_projectiles.draw(self.screen)
 
         self.screen.blit(self.fps, (10, 10))
         self.screen.blit(self.fight_text, (1200 / 2 - self.fight_text.get_width() / 2, 10))
+        self.screen.blit(self.side_text, (1200 / 2 - self.side_text.get_width() / 2, 30))
 
     def update(self):
         global delta_time
@@ -474,10 +332,9 @@ class Game():
         if self.fight:
             self.collide_projectiles()
 
-            self.friends.update(self.zombies)
+            self.friends.update()
             self.friends_projectiles.update()
-            self.zombies.update()
-            self.enemies.update(self.zombies)
+            self.enemies.update()
             self.enemies_projectiles.update()
 
         pygame.display.update()
